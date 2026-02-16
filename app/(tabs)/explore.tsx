@@ -1,112 +1,143 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppThemeColors, useAppTheme } from "@/context/app-theme";
+import { Stack, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { HIMNOS } from "../../constants/himnos";
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function FavoritesScreen() {
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const router = useRouter();
+  const { colors, isDark } = useAppTheme();
+  const styles = useMemo(() => createStyles(colors, isDark), [colors, isDark]);
 
-export default function TabTwoScreen() {
+  useFocusEffect(
+    useCallback(() => {
+      loadFavorites();
+    }, []),
+  );
+
+  const loadFavorites = async () => {
+    try {
+      const savedFavorites = await AsyncStorage.getItem("favorites");
+      const favoritesIds = savedFavorites ? JSON.parse(savedFavorites) : [];
+      const favoriteHymns = HIMNOS.filter((h) => favoritesIds.includes(h.id));
+      setFavorites(favoriteHymns);
+    } catch (error) {
+      console.log("Error cargando favoritos:", error);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Mis Favoritos</Text>
+      </View>
+
+      {favorites.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <MaterialCommunityIcons
+            name="heart-broken"
+            size={60}
+            color={colors.textMuted}
+          />
+          <Text style={styles.emptyText}>Aun no tienes himnos favoritos.</Text>
+          <Text style={styles.emptySubtext}>
+            Toca el corazon en un himno para guardarlo aqui.
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={favorites}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 20 }}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [styles.item, pressed && { opacity: 0.55 }]}
+              onPress={() => router.push(`/${item.id}`)}
+            >
+              <View style={styles.circle}>
+                <Text style={styles.numero}>{item.numero}</Text>
+              </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.titulo}>{item.titulo}</Text>
+                <Text numberOfLines={1} style={styles.preview}>
+                  {item.letra.split("\n")[0]}...
+                </Text>
+              </View>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={24}
+                color={colors.textMuted}
+              />
+            </Pressable>
+          )}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      )}
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
+function createStyles(colors: AppThemeColors, isDark: boolean) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: {
+      backgroundColor: colors.surface,
+      paddingTop: 50,
+      paddingBottom: 15,
+      alignItems: "center",
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      elevation: isDark ? 0 : 2,
+    },
+    headerTitle: { fontSize: 20, fontWeight: "bold", color: colors.text },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 30,
+    },
+    emptyText: {
+      fontSize: 18,
+      color: colors.text,
+      marginTop: 20,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    emptySubtext: {
+      fontSize: 14,
+      color: colors.textMuted,
+      textAlign: "center",
+      marginTop: 10,
+    },
+    item: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 15,
+      backgroundColor: colors.surface,
+      marginHorizontal: 15,
+      marginBottom: 8,
+      marginTop: 10,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      elevation: isDark ? 0 : 1,
+    },
+    circle: {
+      width: 45,
+      height: 45,
+      borderRadius: 25,
+      backgroundColor: colors.dangerSoft,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 15,
+    },
+    numero: { color: colors.danger, fontWeight: "bold", fontSize: 18 },
+    textContainer: { flex: 1 },
+    titulo: { fontSize: 16, fontWeight: "600", color: colors.text },
+    preview: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  });
+}

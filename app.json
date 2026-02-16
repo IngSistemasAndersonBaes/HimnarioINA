@@ -13,24 +13,46 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anderson8.himnarioINAapp"
     },
     "web": {
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/adaptive-icon.png",
+      "name": "Himnario INA",
+      "shortName": "Himnario",
+      "display": "standalone",
+      "startUrl": "/",
+      "backgroundColor": "#ffffff",
+      "themeColor": "#ffffff",
+      "pwa": {
+        "manifest": {
+          "name": "Himnario INA",
+          "short_name": "Himnario",
+          "start_url": ".",
+          "display": "standalone",
+          "background_color": "#ffffff",
+          "theme_color": "#ffffff",
+          "description": "Himnario de la Iglesia Nueva Apostólica",
+          "icons": [
+            {
+              "src": "./assets/images/icon.png",
+              "sizes": "1024x1024",
+              "type": "image/png"
+            }
+          ]
+        }
+      }
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/adaptive-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -38,11 +60,24 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8651534c-c4e5-42f8-b072-afad0d70e4e5"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8651534c-c4e5-42f8-b072-afad0d70e4e5"
     }
   }
 }
