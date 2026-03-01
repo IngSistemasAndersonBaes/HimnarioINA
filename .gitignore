@@ -5,7 +5,7 @@ node_modules/
 
 # Expo
 .expo/
-dist/
+# dist/  # Keep dist for deployment to Netlify
 web-build/
 expo-env.d.ts
 
